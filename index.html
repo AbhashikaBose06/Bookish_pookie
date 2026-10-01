@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Open Shelf — a digital book archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Nunito:wght@400;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#fff3c4;--glow:#fffbe6;--spark:#f5c542;--card:#fffdf4;--ink:#4a3b52;--soft:#7d6d86;--line:#d9c8e4;
+  --lav:#e6dcf5;--mint:#d6f0e4;--peach:#fde0d3;--butter:#fcf0c8;--sky:#d8e9f8;--rose:#f9d9e4;
+  --doodle:#b9a4d3;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#2e2a1e;--glow:#3b3524;--spark:#f2d36b;--card:#3a3426;--ink:#f1e8f6;--soft:#c3b5cd;--line:#5a4a68;
+  --lav:#4a3d62;--mint:#2f4a40;--peach:#5a3f3a;--butter:#575032;--sky:#34495f;--rose:#58384a;--doodle:#8d78a8;}}
+:root[data-theme="dark"]{
+  --bg:#2e2a1e;--glow:#3b3524;--spark:#f2d36b;--card:#3a3426;--ink:#f1e8f6;--soft:#c3b5cd;--line:#5a4a68;
+  --lav:#4a3d62;--mint:#2f4a40;--peach:#5a3f3a;--butter:#575032;--sky:#34495f;--rose:#58384a;--doodle:#8d78a8;}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(ellipse at 15% 0%,var(--glow),transparent 55%),radial-gradient(ellipse at 90% 40%,var(--glow),transparent 50%),var(--bg);color:var(--ink);font:17px/1.65 Nunito,system-ui,sans-serif;position:relative;overflow-x:hidden}
+h1,h2,h3{font-family:"Young Serif",Georgia,serif;font-weight:400;line-height:1.2;margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--doodle);outline-offset:3px;border-radius:6px}
+.doodles{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.doodles svg.sp{color:var(--spark);opacity:.9;width:22px;height:22px;animation:tw 3.6s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.25;transform:scale(.7) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(20deg)}}
+.doodles svg{position:absolute;color:var(--doodle);opacity:.55;width:64px;height:64px}
+header,main,footer{position:relative;z-index:1}
+nav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:18px 16px 0}
+nav button{font:700 16px Nunito,sans-serif;color:var(--ink);background:var(--lav);border:2px solid transparent;border-radius:999px;padding:8px 22px;cursor:pointer}
+nav button[aria-pressed="true"]{background:var(--butter);border-color:var(--ink)}
+.hero{text-align:center;padding:44px 20px 28px;max-width:720px;margin:0 auto}
+.hero h1{font-size:clamp(34px,7vw,56px)}
+.hero .tag{font-family:Caveat,cursive;font-size:26px;color:var(--soft);margin:10px 0 0}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px 60px}
+.view[hidden]{display:none}
+.about{background:var(--card);border:2px dashed var(--line);border-radius:28px;padding:30px clamp(20px,5vw,44px);margin-top:10px}
+.about h2{font-size:30px;margin-bottom:14px}
+.about p{margin:0 0 14px;max-width:62ch}
+.about .pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.pills span{padding:6px 16px;border-radius:999px;font-weight:600;font-size:15px}
+.pills span:nth-child(1){background:var(--mint)}.pills span:nth-child(2){background:var(--peach)}.pills span:nth-child(3){background:var(--sky)}
+.intro{text-align:center;color:var(--soft);margin:0 auto 26px;max-width:52ch}
+/* word tree */
+.tree{list-style:none;margin:0;padding:0 0 0 22px;border-left:4px solid var(--line);margin-left:14px}
+.tree>li{position:relative;padding:6px 0 26px 30px}
+.tree>li:before{content:"";position:absolute;left:-26px;top:26px;width:30px;border-top:4px solid var(--line)}
+.letter{display:inline-grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--lav);font:400 26px "Young Serif",Georgia,serif;margin-left:-4px}
+.leaves{list-style:none;margin:14px 0 0;padding:0 0 0 18px;border-left:3px dotted var(--line);display:grid;gap:16px}
+.book{position:relative;display:grid;grid-template-columns:96px 1fr;gap:18px;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px}
+.book:before{content:"";position:absolute;left:-21px;top:50%;width:19px;border-top:3px dotted var(--line)}
+.cover{display:flex;flex-direction:column;justify-content:center;aspect-ratio:2/3;border-radius:6px 12px 12px 6px;padding:10px 8px 10px 14px;text-decoration:none;text-align:left;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--line);position:relative;transition:transform .2s}
+.cover:hover{transform:rotate(-3deg) translateY(-3px)}
+.cover:before{content:"";position:absolute;left:6px;top:0;bottom:0;border-left:2px solid rgba(74,59,82,.35)}
+.cover b{font:400 14px/1.2 "Young Serif",Georgia,serif;color:#4a3b52}
+.cover i{font:600 11px/1.2 Nunito,sans-serif;color:#4a3b52;margin-top:6px;font-style:normal}
+.cover.c0{background:#e6dcf5}.cover.c1{background:#d6f0e4}.cover.c2{background:#fde0d3}.cover.c3{background:#fcf0c8}.cover.c4{background:#d8e9f8}.cover.c5{background:#f9d9e4}
+.book h3{font-size:21px}
+.meta{font-weight:700;color:var(--soft);font-size:15px;margin:2px 0 6px}
+.book p{margin:0 0 8px;font-size:16px}
+.read{font-weight:700;font-size:15px}
+footer{text-align:center;color:var(--soft);padding:10px 20px 40px;font-family:Caveat,cursive;font-size:22px}
+@media(max-width:520px){.book{grid-template-columns:78px 1fr;gap:12px}.cover b{font-size:12px}.cover i{display:none}.tree{padding-left:12px}.tree>li{padding-left:22px}}
+@media(prefers-reduced-motion:reduce){.cover{transition:none}.doodles svg.sp{animation:none;opacity:.7}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <symbol id="book" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14c8-3 15-2 22 3 7-5 14-6 22-3v34c-8-3-15-2-22 3-7-5-14-6-22-3z"/><path d="M32 17v34"/><path d="M17 24c4-1 8-1 11 1M17 31c4-1 8-1 11 1"/></symbol>
+  <symbol id="pen" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 52l4-12L44 12l8 8-28 28z"/><path d="M38 18l8 8M12 52l10-3"/><path d="M8 58c6-3 10 2 16-1"/></symbol>
+  <symbol id="sparkle" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12z"/></symbol>
+  <symbol id="star" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8l5 16 17 1-13 10 5 17-14-10-14 10 5-17L10 25l17-1z"/></symbol>
+ </defs>
+</svg>
+<div class="doodles" aria-hidden="true">
+ <svg style="left:4%;top:90px;transform:rotate(-14deg)"><use href="#book"/></svg>
+ <svg style="right:5%;top:130px;transform:rotate(18deg)"><use href="#pen"/></svg>
+ <svg style="left:8%;top:520px;width:44px;height:44px"><use href="#star"/></svg>
+ <svg style="right:7%;top:780px;transform:rotate(-8deg)"><use href="#book"/></svg>
+ <svg style="left:3%;top:1180px;transform:rotate(12deg)"><use href="#pen"/></svg>
+ <svg style="right:4%;top:1560px;transform:rotate(10deg)"><use href="#book"/></svg>
+ <svg style="left:6%;top:1950px;transform:rotate(-10deg)"><use href="#book"/></svg>
+ <svg style="right:6%;top:2350px;transform:rotate(20deg)"><use href="#pen"/></svg>
+ <svg class="sp" style="left:12%;top:260px;animation-delay:0s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:88%;top:200px;animation-delay:0.6s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:30%;top:640px;animation-delay:1.2s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:70%;top:430px;animation-delay:1.8s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:50%;top:900px;animation-delay:0.3s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:92%;top:1100px;animation-delay:2.1s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:15%;top:1400px;animation-delay:0.9s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:80%;top:1700px;animation-delay:1.5s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:40%;top:2000px;animation-delay:2.4s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:60%;top:2250px;animation-delay:0.2s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:8%;top:2500px;animation-delay:1.1s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:85%;top:2600px;animation-delay:1.9s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:25%;top:330px;animation-delay:2.7s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:55%;top:150px;animation-delay:1.4s"><use href="#sparkle"/></svg>
+ <svg class="sp" style="left:75%;top:980px;animation-delay:0.8s"><use href="#sparkle"/></svg>
+</div>
+
+<header>
+ <nav aria-label="Main">
+  <button id="t-archive" aria-pressed="true">The word tree</button>
+  <button id="t-about" aria-pressed="false">About the archive</button>
+ </nav>
+ <div class="hero">
+  <h1>The Open Shelf</h1>
+  <p class="tag">a small digital archive of books anyone can read, free</p>
+ </div>
+</header>
+
+<main class="wrap">
+ <section id="archive" class="view">
+  <p class="intro">Books grow on this tree in alphabetical order. Tap a cover to read the book for free.</p>
+  <ul class="tree" id="tree"></ul>
+ </section>
+
+ <section id="about" class="view" hidden>
+  <div class="about">
+   <h2>Why we are building this archive</h2>
+   <p>Most people who want to read a classic never get past the first obstacle: finding a legitimate copy they can open without paying, signing up or guessing which site is safe.</p>
+   <p>This archive gathers books that are free to read in one place. Each entry has its author, year and a short description, and its cover leads straight to a free, legal edition hosted by a trusted library.</p>
+   <p>We are building it so that reading is not a privilege of whoever has a library card, a fast connection to a store, or a budget for books. It is also a study aid: students and researchers can browse by title, see when a work appeared, and open it in one tap.</p>
+   <p>The archive is a living shelf. New books are added over time, and every entry points to the original free source rather than hosting copies itself.</p>
+   <div class="pills"><span>Free to read</span><span>Alphabetical</span><span>Linked to the source</span></div>
+  </div>
+ </section>
+</main>
+<footer>happy reading</footer>
+
+<script>
+var BOOKS=[
+ {t:"Alice's Adventures in Wonderland",a:"Lewis Carroll",y:1865,d:"A girl follows a white rabbit down a hole into a world of riddles, odd tea parties and a very short-tempered queen.",u:"https://www.gutenberg.org/ebooks/11"},
+ {t:"Dracula",a:"Bram Stoker",y:1897,d:"Told through letters and diaries, a band of friends hunts the Transylvanian count who has crossed the sea to England.",u:"https://www.gutenberg.org/ebooks/345"},
+ {t:"Frankenstein",a:"Mary Shelley",y:1818,d:"A young scientist builds a living creature and must face what he has made when it is left alone and unloved.",u:"https://www.gutenberg.org/ebooks/84"},
+ {t:"Gitanjali",a:"Rabindranath Tagore",y:1910,d:"Prayer-poems of devotion, longing and everyday wonder; Tagore's English collection that helped win him the Nobel Prize.",u:"https://www.gutenberg.org/ebooks/7164"},
+ {t:"Great Expectations",a:"Charles Dickens",y:1861,d:"Orphan Pip is given a mysterious fortune and learns what it costs to want to be somebody else.",u:"https://www.gutenberg.org/ebooks/1400"},
+ {t:"Jane Eyre",a:"Charlotte Brontë",y:1847,d:"An orphaned governess with a fierce sense of right finds love and a dark secret at Thornfield Hall.",u:"https://www.gutenberg.org/ebooks/1260"},
+ {t:"Metamorphosis",a:"Franz Kafka",y:1915,d:"Gregor Samsa wakes one morning transformed into an insect, and his family must decide how to live with it.",u:"https://www.gutenberg.org/ebooks/5200"},
+ {t:"Moby-Dick",a:"Herman Melville",y:1851,d:"Captain Ahab chases the white whale across the oceans while Ishmael tells the story of the voyage.",u:"https://www.gutenberg.org/ebooks/2701"},
+ {t:"Pride and Prejudice",a:"Jane Austen",y:1813,d:"Elizabeth Bennet and the proud Mr Darcy misjudge each other in a sharp, funny story of manners and marriage.",u:"https://www.gutenberg.org/ebooks/1342"},
+ {t:"The Picture of Dorian Gray",a:"Oscar Wilde",y:1890,d:"A beautiful young man stays unchanged while his portrait quietly records every one of his choices.",u:"https://www.gutenberg.org/ebooks/174"},
+ {t:"Treasure Island",a:"Robert Louis Stevenson",y:1883,d:"Young Jim Hawkins sails after buried pirate gold, with the charming and dangerous Long John Silver aboard.",u:"https://www.gutenberg.org/ebooks/120"},
+ {t:"Wuthering Heights",a:"Emily Brontë",y:1847,d:"On the Yorkshire moors, the stormy bond between Heathcliff and Catherine shapes two families for a generation.",u:"https://www.gutenberg.org/ebooks/768"}
+];
+function key(b){return b.t.replace(/^(The|A|An)\s+/i,"").toUpperCase()}
+BOOKS.sort(function(x,y){return key(x)<key(y)?-1:1});
+var groups={};BOOKS.forEach(function(b){var L=key(b)[0];(groups[L]=groups[L]||[]).push(b)});
+var tree=document.getElementById("tree"),n=0;
+Object.keys(groups).sort().forEach(function(L){
+  var li=document.createElement("li");
+  li.innerHTML='<span class="letter" aria-hidden="true">'+L+'</span><ul class="leaves" aria-label="Books starting with '+L+'"></ul>';
+  var ul=li.querySelector("ul");
+  groups[L].forEach(function(b){
+    var c="c"+(n++%6),e=document.createElement("li");
+    e.className="book";
+    e.innerHTML='<a class="cover '+c+'" href="'+b.u+'" target="_blank" rel="noopener" aria-label="Read '+b.t+' for free (opens in a new tab)"><b>'+b.t+'</b><i>'+b.a+'</i></a>'+
+      '<div><h3>'+b.t+'</h3><div class="meta">'+b.a+', '+b.y+'</div><p>'+b.d+'</p><a class="read" href="'+b.u+'" target="_blank" rel="noopener">Read free</a></div>';
+    ul.appendChild(e);
+  });
+  tree.appendChild(li);
+});
+function show(id){
+  ["archive","about"].forEach(function(v){
+    document.getElementById(v).hidden=(v!==id);
+    document.getElementById("t-"+v).setAttribute("aria-pressed",v===id);
+  });
+  window.scrollTo(0,0);
+}
+document.getElementById("t-archive").onclick=function(){show("archive")};
+document.getElementById("t-about").onclick=function(){show("about")};
+</script>
+</body>
+</html>
